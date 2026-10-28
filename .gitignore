@@ -1,0 +1,8 @@
+# Dati personali: non devono mai finire su GitHub
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+backup-*.json
+*.vcf
+*.pdf
