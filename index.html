@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<!--
+  index.html — LA STRUTTURA della pagina.
+  Lezione 6: nuova interfaccia. Menu laterale su PC, barra in basso sul telefono,
+  pagina iniziale "Panoramica" e scheda del singolo mezzo.
+-->
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1F3A5F">
+  <title>Gestionale Flotta</title>
+
+  <!-- Barlow: carattere nato dalla segnaletica stradale. Senza internet si usa il carattere di sistema. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+
+  <!-- Leaflet: libreria gratuita per disegnare mappe -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== MENU =====
+       Su PC è una colonna a sinistra, sul telefono una barra in basso (lo decide style.css).
+       Le voci con class "secondaria" sul telefono stanno nel menu "Altro". -->
+  <!-- Solo sul telefono: il nome dell'azienda in cima alla pagina -->
+  <!-- Il logo è il file "logo.png" nella cartella dell'app: se manca, l'immagine si nasconde da sola -->
+  <div class="barra-alta">
+    <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
+    <span id="nome-azienda-telefono">ZUIN AUTOTRASPORTI SRL</span>
+  </div>
+
+  <aside class="menu">
+    <div class="marchio">
+      <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
+      <div>
+        <span class="marchio-nome" id="nome-azienda">ZUIN AUTOTRASPORTI SRL</span>
+        <span class="marchio-sotto">Gestionale flotta</span>
+      </div>
+    </div>
+
+    <nav class="voci">
+      <button class="tab attiva" data-vista="panoramica">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        <span>Panoramica</span>
+      </button>
+      <button class="tab" data-vista="dashboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span>Scadenze</span><span class="contatore-menu" id="menu-scadenze"></span>
+      </button>
+      <button class="tab" data-vista="mezzi">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16V7h11v9M13 10h4l4 4v2h-8"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
+        <span>Mezzi</span>
+      </button>
+      <button class="tab" data-vista="percorso">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H16a3 3 0 0 0 0-6H8a3 3 0 0 1 0-6h7.5"/></svg>
+        <span>Percorso</span>
+      </button>
+      <button class="tab secondaria" data-vista="autisti">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span>Autisti</span>
+      </button>
+      <button class="tab secondaria" data-vista="tratte">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span>Tratte</span>
+      </button>
+      <button class="tab secondaria" data-vista="carte">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M8 7h4M15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>
+        <span>Carte carburante</span>
+      </button>
+      <button class="tab secondaria" data-vista="modulistica">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>Modulistica</span>
+      </button>
+      <button class="tab secondaria" data-vista="contatti">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2.2"/><path d="M4.8 16.2a3.4 3.4 0 0 1 6.4 0M14 10h5M14 14h4"/></svg>
+        <span>Contatti</span>
+      </button>
+      <button class="tab secondaria" data-vista="dati">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+        <span>Dati e impostazioni</span>
+      </button>
+
+      <!-- Solo sul telefono: apre le voci secondarie -->
+      <button class="voce-altro" id="btn-altro" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+        <span>Altro</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- ===== PANORAMICA (pagina iniziale) ===== -->
+    <section id="vista-panoramica" class="vista">
+      <header class="testata">
+        <p class="data-oggi" id="data-oggi"></p>
+        <!-- La frase riassuntiva viene scritta da ui.js -->
+        <h1 class="frase-situazione" id="frase-situazione"></h1>
+      </header>
+
+      <div class="griglia-panoramica">
+        <section class="riquadro riquadro-urgenti">
+          <div class="riquadro-testa">
+            <h2>Da sistemare</h2>
+            <button class="link" data-vai="dashboard">Tutte le scadenze</button>
+          </div>
+          <ul class="elenco-urgenti" id="elenco-urgenti"></ul>
+        </section>
+
+        <section class="riquadro">
+          <div class="riquadro-testa">
+            <h2 id="titolo-mese">Questo mese</h2>
+            <button class="link" data-vai="tratte">Tratte</button>
+          </div>
+          <dl class="cifre" id="cifre-mese"></dl>
+          <ul class="elenco-tratte" id="ultime-tratte"></ul>
+        </section>
+
+        <section class="riquadro">
+          <div class="riquadro-testa">
+            <h2>Flotta</h2>
+            <button class="link" data-vai="mezzi">Mezzi</button>
+          </div>
+          <dl class="cifre" id="cifre-flotta"></dl>
+          <ul class="elenco-fermi" id="mezzi-fermi"></ul>
+        </section>
+      </div>
+    </section>
+
+    <!-- ===== SCADENZE ===== -->
+    <section id="vista-dashboard" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Scadenze</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-dashboard" placeholder="Cerca targa, autista, documento">
+          <select id="filtro-stato" aria-label="Quali scadenze mostrare">
+            <option value="urgenti">Da sistemare</option>
+            <option value="tutte">Tutte</option>
+          </select>
+        </div>
+      </header>
+
+      <div id="riepilogo" class="contatori"></div>
+
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Stato</th>
+              <th>Scadenza</th>
+              <th>Riferimento</th>
+              <th>Documento</th>
+              <th>Giorni</th>
+            </tr>
+          </thead>
+          <tbody id="tabella-scadenze"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== MEZZI ===== -->
+    <!-- Nei dati il semirimorchio resta tipo "rimorchio": cambia solo come lo mostriamo. -->
+    <section id="vista-mezzi" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Mezzi</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-mezzi" placeholder="Cerca targa, marca, autista">
+        </div>
+      </header>
+
+      <div class="titolo-sezione">
+        <h2>Trattori <span id="conta-trattori" class="tenue"></span></h2>
+        <button data-nuovo-tipo="trattore">Aggiungi trattore</button>
+      </div>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Targa</th>
+              <th>Marca e modello</th>
+              <th>Anno</th>
+              <th>Autista</th>
+              <th>Massa (t)</th>
+              <th>Misure H×L×L (m)</th>
+              <th>Stato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-trattori"></tbody>
+        </table>
+      </div>
+
+      <div class="titolo-sezione">
+        <h2>Semirimorchi <span id="conta-semirimorchi" class="tenue"></span></h2>
+        <button data-nuovo-tipo="rimorchio">Aggiungi semirimorchio</button>
+      </div>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Targa</th>
+              <th>Tipo</th>
+              <th>Marca e modello</th>
+              <th>Anno</th>
+              <th>Massa (t)</th>
+              <th>Misure H×L×L (m)</th>
+              <th>Stato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-semirimorchi"></tbody>
+        </table>
+      </div>
+
+      <div class="titolo-sezione">
+        <h2>Auto aziendali <span id="conta-auto" class="tenue"></span></h2>
+        <button data-nuovo-tipo="auto">Aggiungi auto</button>
+      </div>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Targa</th>
+              <th>Marca e modello</th>
+              <th>Anno</th>
+              <th>Stato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-auto"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== AUTISTI ===== -->
+    <section id="vista-autisti" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Autisti</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-autisti" placeholder="Cerca nome o targa">
+          <button id="btn-nuovo-autista">Aggiungi autista</button>
+        </div>
+      </header>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome e cognome</th>
+              <th>Telefono</th>
+              <th>Patente</th>
+              <th>CQC</th>
+              <th>Carta tachigr.</th>
+              <th>Mezzo</th>
+              <th>Stato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-autisti"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== PERCORSO ===== -->
+    <section id="vista-percorso" class="vista nascosta">
+      <header class="testata">
+        <h1>Calcola percorso</h1>
+      </header>
+      <div class="layout-percorso">
+
+        <form id="form-percorso" class="pannello" autocomplete="off">
+          <!-- Il menu dei suggerimenti viene creato da percorso.js sotto ciascun campo -->
+          <label class="campo-indirizzo">Partenza
+            <input name="partenza" required placeholder="es. Brusnengo">
+          </label>
+          <!-- Qui percorso.js aggiunge le tappe "Passa da" -->
+          <div id="tappe"></div>
+          <button type="button" id="btn-aggiungi-tappa" class="secondario piccolo">Aggiungi tappa</button>
+
+          <label class="campo-indirizzo">Arrivo
+            <input name="arrivo" required placeholder="es. Castel Bolognese">
+          </label>
+
+          <div class="due-colonne">
+            <label>Trattore
+              <select name="trattore"></select>
+            </label>
+            <label>Semirimorchio
+              <select name="rimorchio"></select>
+            </label>
+            <label>Carico (t)
+              <input name="carico" type="number" step="0.1" min="0" value="30" required inputmode="decimal">
+            </label>
+            <label>Tara complesso (t)
+              <input name="tara" type="number" step="0.1" min="0" required inputmode="decimal">
+            </label>
+          </div>
+
+          <!-- Le misure si compilano da sole dai mezzi: le teniamo chiuse per non affollare -->
+          <details class="misure">
+            <summary>Assi e misure</summary>
+            <div class="due-colonne">
+              <label>Assi
+                <input name="assi" type="number" min="2" max="9" value="5" required inputmode="numeric">
+              </label>
+              <label>Altezza (m)
+                <input name="altezza" type="number" step="0.01" min="0" required inputmode="decimal">
+              </label>
+              <label>Larghezza (m)
+                <input name="larghezza" type="number" step="0.01" min="0" required inputmode="decimal">
+              </label>
+              <label>Lunghezza (m)
+                <input name="lunghezza" type="number" step="0.01" min="0" required inputmode="decimal">
+              </label>
+            </div>
+          </details>
+
+          <button type="submit" id="btn-calcola">Calcola percorso</button>
+          <p id="contatore" class="tenue"></p>
+        </form>
+
+        <div class="colonna-mappa">
+          <div id="mappa"></div>
+          <div id="esito-percorso" class="esito"></div>
+          <div id="risultati-percorso" class="risultati"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TRATTE SALVATE ===== -->
+    <section id="vista-tratte" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Tratte</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-tratte" placeholder="Cerca cliente, località, targa">
+        </div>
+      </header>
+      <div id="riepilogo-tratte" class="contatori"></div>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Tratta</th>
+              <th>Mezzi</th>
+              <th>Km</th>
+              <th>t</th>
+              <th>Pedaggio</th>
+              <th>Gasolio</th>
+              <th>Costo netto</th>
+              <th>Ricavo</th>
+              <th>Margine</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-tratte"></tbody>
+        </table>
+      </div>
+      <p class="nota">Costo netto: gasolio e pedaggio senza IVA, più manutenzione (€/km) e autista (€/ora),
+        come nel foglio TRATTE. Le tariffe si cambiano in Dati e impostazioni.</p>
+    </section>
+
+    <!-- ===== CARTE CARBURANTE ===== -->
+    <section id="vista-carte" class="vista nascosta">
+      <header class="testata testata-riga">
+        <div>
+          <h1>Carte carburante</h1>
+          <p class="tenue" id="conta-carte"></p>
+        </div>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-carte" placeholder="Cerca numero, targa, autista">
+          <button id="btn-nuova-carta">Aggiungi carta</button>
+        </div>
+      </header>
+      <!-- I gruppi per fornitore vengono disegnati da carte.js -->
+      <div id="elenco-carte"></div>
+    </section>
+
+    <!-- ===== MODULISTICA: i documenti di tutti i giorni ===== -->
+    <section id="vista-modulistica" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Modulistica</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-modulistica" placeholder="Cerca documento o cliente">
+          <select id="filtro-cliente-modulistica" aria-label="Filtra per cliente"></select>
+          <button id="btn-nuovo-modulo">Carica documento</button>
+        </div>
+      </header>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Tipo</th>
+              <th>Cliente</th>
+              <th>Caricato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-modulistica"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== CONTATTI: il biglietto da visita ===== -->
+    <section id="vista-contatti" class="vista nascosta">
+      <header class="testata">
+        <h1>Contatti</h1>
+      </header>
+
+      <div class="layout-contatti">
+        <form id="form-contatti" class="pannello" autocomplete="off">
+          <h2>I tuoi dati</h2>
+          <p>Compilali una volta: il biglietto qui accanto si aggiorna mentre scrivi. I campi vuoti non compaiono.</p>
+          <div class="due-colonne">
+            <label class="intera">Ragione sociale
+              <input name="ragioneSociale">
+            </label>
+            <label class="intera">Attività
+              <input name="attivita" placeholder="es. Trasporto merci su strada, cisterne e ribaltabili">
+            </label>
+            <label>Referente
+              <input name="referente" placeholder="Nome e cognome">
+            </label>
+            <label>Ruolo
+              <input name="ruolo" placeholder="es. Amministratore">
+            </label>
+            <label>Telefono ufficio
+              <input name="telefono" type="tel">
+            </label>
+            <label>Cellulare
+              <input name="cellulare" type="tel">
+            </label>
+            <label>Email
+              <input name="email" type="email">
+            </label>
+            <label>PEC
+              <input name="pec" type="email">
+            </label>
+            <label class="intera">Sede
+              <input name="indirizzo" placeholder="Via, numero, CAP, comune (provincia)">
+            </label>
+            <label>Partita IVA
+              <input name="piva" inputmode="numeric">
+            </label>
+            <label>Sito web
+              <input name="sito" placeholder="www.…">
+            </label>
+          </div>
+          <p id="esito-contatti" class="tenue"></p>
+        </form>
+
+        <div class="colonna-biglietto">
+          <!-- Il biglietto viene disegnato da contatti.js -->
+          <div id="biglietto"></div>
+          <div class="azioni-biglietto">
+            <button type="button" id="btn-copia-testo">Copia testo</button>
+            <button type="button" id="btn-copia-biglietto" class="secondario">Copia biglietto per email</button>
+            <button type="button" id="btn-vcard" class="secondario">Salva contatto (.vcf)</button>
+            <button type="button" id="btn-condividi" class="secondario" hidden>Condividi</button>
+          </div>
+          <p id="esito-copia" class="tenue"></p>
+          <p class="nota">«Copia testo» va bene per WhatsApp e SMS. «Copia biglietto» incolla la versione grafica
+            in un'email (Gmail, Outlook) e si può usare anche come firma. Il file .vcf, aperto dal cliente,
+            ti aggiunge alla sua rubrica.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DATI E IMPOSTAZIONI ===== -->
+    <section id="vista-dati" class="vista nascosta">
+      <header class="testata">
+        <h1>Dati e impostazioni</h1>
+      </header>
+
+      <form id="form-impostazioni" class="pannello" autocomplete="off">
+        <h2>Impostazioni</h2>
+        <p>La chiave HERE resta solo in questo browser: non finisce nel backup e non viene inviata altrove.</p>
+        <div class="due-colonne">
+          <label class="intera">Nome dell'azienda
+            <input name="nomeAzienda" placeholder="compare in alto nel menu">
+          </label>
+          <label class="intera">Chiave API HERE
+            <input name="apiKey" type="password" placeholder="incolla qui la tua API key">
+          </label>
+          <label>Limite calcoli al mese
+            <input name="sogliaMensile" type="number" min="0" step="1">
+          </label>
+          <label>Prezzo gasolio (€/l, IVA incl.)
+            <input name="prezzoGasolio" type="number" min="0" step="0.001">
+          </label>
+          <label>Consumo a vuoto (km/l)
+            <input name="kmLitroVuoto" type="number" min="0.5" step="0.01">
+          </label>
+          <label>Consumo a pieno carico (km/l)
+            <input name="kmLitroPieno" type="number" min="0.5" step="0.01">
+          </label>
+          <label>Pieno carico (t)
+            <input name="caricoPieno" type="number" min="1" step="0.1">
+          </label>
+          <label>Tara complesso predefinita (t)
+            <input name="taraPredefinita" type="number" min="0" step="0.1">
+          </label>
+          <label>Costo autista (€/ora)
+            <input name="costoAutistaOra" type="number" min="0" step="0.01">
+          </label>
+          <label>Manutenzione (€/km)
+            <input name="manutenzioneKm" type="number" min="0" step="0.001">
+          </label>
+          <label>IVA su gasolio e pedaggi (%)
+            <input name="iva" type="number" min="0" step="1">
+          </label>
+        </div>
+        <div class="azioni-form">
+          <button type="submit">Salva impostazioni</button>
+        </div>
+        <p id="esito-impostazioni" class="tenue"></p>
+      </form>
+
+      <div class="pannello">
+        <h2>Importa dal file Excel</h2>
+        <p>Scegli il file <em>Gestionale_Flotta_Documenti_Scadenze.xlsx</em>. Vengono letti i fogli
+          TRATTORI, RIMORCHI, AUTISTI e le tarature del cronotachigrafo dal foglio SCADENZE.</p>
+        <p>I mezzi si riconoscono dalla targa e gli autisti dal nome: se esistono già vengono aggiornati,
+          altrimenti vengono aggiunti. Peso e dimensioni inseriti nell'app non vengono toccati.</p>
+        <label class="bottone">
+          Scegli file Excel
+          <input type="file" id="input-excel" accept=".xlsx,.xlsm,.xls" hidden>
+        </label>
+        <div id="esito-import" class="esito"></div>
+      </div>
+
+      <div class="pannello">
+        <h2>Backup</h2>
+        <p>I dati dell'app stanno dentro questo browser. Esporta un backup ogni tanto: se cambi PC
+          o svuoti la cronologia, con il file di backup li recuperi. Il backup contiene anche le foto dei mezzi.</p>
+        <div class="barra">
+          <button id="btn-esporta" class="secondario">Esporta backup</button>
+          <label class="bottone secondario">
+            Importa backup
+            <input type="file" id="input-backup" accept=".json" hidden>
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SCHEDA DEL MEZZO (si apre toccando una targa) ===== -->
+  <dialog id="dialog-scheda" class="scheda">
+    <div id="contenuto-scheda"></div>
+  </dialog>
+
+  <!-- ===== FINESTRA: MEZZO ===== -->
+  <dialog id="dialog-mezzo">
+    <form id="form-mezzo">
+      <h2 id="titolo-form-mezzo">Nuovo mezzo</h2>
+
+      <fieldset>
+        <legend>Dati generali</legend>
+        <label>Tipo
+          <select name="tipo" required>
+            <option value="trattore">Trattore</option>
+            <option value="rimorchio">Semirimorchio</option>
+            <option value="auto">Auto aziendale</option>
+          </select>
+        </label>
+        <label>Targa
+          <input name="targa" required placeholder="AB123CD" autocapitalize="characters">
+        </label>
+        <label class="solo-rimorchio">Tipo semirimorchio
+          <select name="tipoRimorchio">
+            <option value=""></option>
+            <option>Vasca</option><option>Cisterna</option><option>Telonato</option>
+            <option>Centinato</option><option>Frigorifero</option><option>Pianale</option>
+            <option>Ribaltabile</option><option>Portacontainer</option><option>Bisarca</option>
+            <option>Silos</option><option>Gran volume</option><option>Altro</option>
+          </select>
+        </label>
+        <label>Marca
+          <input name="marca">
+        </label>
+        <label>Modello
+          <input name="modello">
+        </label>
+        <label>Anno
+          <input name="anno" type="number" min="1950" max="2100" inputmode="numeric">
+        </label>
+        <label>Telaio
+          <input name="telaio">
+        </label>
+        <label>Stato
+          <select name="stato">
+            <option>Attivo</option>
+            <option>In manutenzione</option>
+            <option>Fermo</option>
+            <option>Venduto</option>
+          </select>
+        </label>
+        <!-- Le opzioni (l'elenco autisti) vengono create da app.js -->
+        <label class="solo-trattore">Assegnato a (autista)
+          <select name="autista"></select>
+        </label>
+      </fieldset>
+
+      <fieldset class="non-auto">
+        <legend>Peso e dimensioni (servono per i percorsi)</legend>
+        <label>Massa complessiva (t)
+          <input name="massa" type="number" step="0.1" min="0" inputmode="decimal">
+        </label>
+        <label>Altezza (m)
+          <input name="altezza" type="number" step="0.01" min="0" inputmode="decimal">
+        </label>
+        <label>Larghezza (m)
+          <input name="larghezza" type="number" step="0.01" min="0" inputmode="decimal">
+        </label>
+        <label>Lunghezza (m)
+          <input name="lunghezza" type="number" step="0.01" min="0" inputmode="decimal">
+        </label>
+      </fieldset>
+
+      <!-- I campi data vengono creati da app.js in base al tipo di mezzo (vedi DOCUMENTI) -->
+      <fieldset id="campi-scadenze-mezzo">
+        <legend>Scadenze</legend>
+      </fieldset>
+
+      <!-- Libretto e documenti: lo riempie app.js (serve un mezzo già salvato) -->
+      <fieldset class="fieldset-documenti">
+        <legend>Libretto e documenti</legend>
+        <div id="documenti-modulo-mezzo"></div>
+      </fieldset>
+
+      <label>Note
+        <input name="note">
+      </label>
+
+      <div class="azioni-form">
+        <button type="button" class="secondario pericolo a-sinistra" id="btn-elimina-mezzo" hidden>Elimina mezzo</button>
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Salva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== FINESTRA: AUTISTA ===== -->
+  <dialog id="dialog-autista">
+    <form id="form-autista">
+      <h2 id="titolo-form-autista">Nuovo autista</h2>
+
+      <fieldset>
+        <legend>Dati generali</legend>
+        <label>Nome e cognome
+          <input name="nome" required>
+        </label>
+        <label>Telefono
+          <input name="telefono" type="tel">
+        </label>
+        <label>N° patente
+          <input name="numeroPatente">
+        </label>
+        <label>N° carta tachigrafica
+          <input name="numeroCarta">
+        </label>
+        <label>Stato
+          <select name="stato">
+            <option>Attivo</option>
+            <option>Non attivo</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset id="campi-scadenze-autista">
+        <legend>Scadenze</legend>
+      </fieldset>
+
+      <fieldset class="fieldset-documenti">
+        <legend>Documenti (patente, carta tachigrafica, carta d'identità…)</legend>
+        <div id="documenti-modulo-autista"></div>
+      </fieldset>
+
+      <label>Note
+        <input name="note">
+      </label>
+
+      <div class="azioni-form">
+        <button type="button" class="secondario pericolo a-sinistra" id="btn-elimina-autista" hidden>Elimina autista</button>
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Salva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== FINESTRA: CARTA CARBURANTE ===== -->
+  <dialog id="dialog-carta">
+    <form id="form-carta" autocomplete="off">
+      <h2 id="titolo-form-carta">Nuova carta carburante</h2>
+      <fieldset>
+        <legend>Dati della carta</legend>
+        <label>Fornitore
+          <input name="fornitore" required list="elenco-fornitori" placeholder="es. DKV">
+          <datalist id="elenco-fornitori"></datalist>
+        </label>
+        <label>Numero carta
+          <input name="numero" inputmode="numeric">
+        </label>
+        <label>Assegnata a
+          <select name="assegnata"></select>
+        </label>
+        <label>Scadenza
+          <input name="scadenza" type="date">
+        </label>
+        <label>Stato
+          <select name="stato">
+            <option>Attiva</option>
+            <option>Bloccata</option>
+            <option>Dismessa</option>
+          </select>
+        </label>
+      </fieldset>
+      <label>Note
+        <input name="note" placeholder="es. solo gasolio, limite mensile…">
+      </label>
+      <p class="nota">Il PIN non va scritto qui, nemmeno nelle note.</p>
+      <div class="azioni-form">
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Salva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== FINESTRA: CARICA DOCUMENTO (MODULISTICA) ===== -->
+  <dialog id="dialog-modulo">
+    <form id="form-modulo" autocomplete="off">
+      <h2>Carica documento</h2>
+      <fieldset>
+        <legend>Documento</legend>
+        <label class="intera-fieldset">File (PDF o foto)
+          <input name="file" type="file" accept="application/pdf,image/*" required>
+        </label>
+        <label>Titolo
+          <input name="titolo" required placeholder="es. Certificato lavaggio cisterna">
+        </label>
+        <label>Tipo
+          <select name="categoria"></select>
+        </label>
+        <label>Cliente
+          <input name="cliente" list="elenco-clienti" placeholder="facoltativo">
+          <datalist id="elenco-clienti"></datalist>
+        </label>
+      </fieldset>
+      <p id="esito-modulo" class="errore-testo"></p>
+      <div class="azioni-form">
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Carica</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== FINESTRA: SALVA / MODIFICA TRATTA ===== -->
+  <dialog id="dialog-tratta">
+    <form id="form-tratta">
+      <h2 id="titolo-form-tratta">Salva tratta</h2>
+      <p id="riassunto-tratta" class="tenue"></p>
+
+      <fieldset>
+        <legend>Dati della tratta</legend>
+        <label>Data
+          <input name="data" type="date" required>
+        </label>
+        <label>Cliente
+          <input name="cliente">
+        </label>
+        <label>Prezzo (€/t)
+          <input name="prezzoTonnellata" type="number" min="0" step="0.01" inputmode="decimal">
+        </label>
+        <label>Pedaggio reale (€)
+          <input name="pedaggioReale" type="number" min="0" step="0.01" placeholder="da Telepass, se lo sai" inputmode="decimal">
+        </label>
+      </fieldset>
+
+      <label>Note
+        <input name="note">
+      </label>
+
+      <div class="azioni-form">
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Salva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Librerie esterne: SheetJS (leggere Excel) e Leaflet (mappe). Servono internet la prima volta. -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- L'ordine conta: app.js definisce i dati, gli altri file li usano; ui.js per ultimo -->
+  <script src="app.js"></script>
+  <script src="import-excel.js"></script>
+  <script src="percorso.js"></script>
+  <script src="tratte.js"></script>
+  <script src="foto.js"></script>
+  <script src="allegati.js"></script>
+  <script src="carte.js"></script>
+  <script src="modulistica.js"></script>
+  <script src="contatti.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>
