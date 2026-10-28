@@ -43,9 +43,26 @@ async function apriArchivioAllegati() {
 async function contenitoreAllegati(modo) {
   return (await apriArchivioAllegati()).transaction('file', modo).objectStore('file');
 }
-async function leggiFileAllegato(id) { return richiesta((await contenitoreAllegati('readonly')).get(id)); }
-async function salvaFileAllegato(id, blob) { return richiesta((await contenitoreAllegati('readwrite')).put(blob, id)); }
-async function cancellaFileAllegato(id) { return richiesta((await contenitoreAllegati('readwrite')).delete(id)); }
+// Come per le foto: prima la copia nel browser, poi il database (cloud.js)
+async function leggiFileAllegatoLocale(id) { return richiesta((await contenitoreAllegati('readonly')).get(id)); }
+
+async function leggiFileAllegato(id) {
+  const locale = await leggiFileAllegatoLocale(id);
+  if (locale) return locale;
+  const remoto = typeof cloudScaricaFile === 'function' ? await cloudScaricaFile(`allegati/${id}`) : null;
+  if (remoto) await richiesta((await contenitoreAllegati('readwrite')).put(remoto, id));
+  return remoto || undefined;
+}
+
+async function salvaFileAllegato(id, blob) {
+  await richiesta((await contenitoreAllegati('readwrite')).put(blob, id));
+  if (typeof cloudCaricaFile === 'function') cloudCaricaFile(`allegati/${id}`, blob);
+}
+
+async function cancellaFileAllegato(id) {
+  await richiesta((await contenitoreAllegati('readwrite')).delete(id));
+  if (typeof cloudEliminaFile === 'function') cloudEliminaFile(`allegati/${id}`);
+}
 
 
 /* ======================================================================

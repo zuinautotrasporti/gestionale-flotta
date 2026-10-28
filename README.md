@@ -21,11 +21,16 @@ documenti caricati, calcolo dei percorsi per camion (con pedaggi), tratte e marg
 | `carte.js` | carte carburante |
 | `modulistica.js` | documenti di uso quotidiano |
 | `contatti.js` | biglietto da visita |
+| `cloud.js` | collegamento al database Supabase: accesso, sincronizzazione, file |
+| `database/schema.sql` | struttura del database e regole di accesso (da eseguire in Supabase) |
 
 ## Dove stanno i dati
 
-I dati **non** sono in questo progetto: restano nel browser di chi usa l'app
-(localStorage per i dati, IndexedDB per foto e documenti). Anche la chiave HERE resta nel browser.
-Per spostarli da un dispositivo all'altro si usa *Dati e impostazioni → Esporta / Importa backup*.
+I dati stanno nel database **Supabase** (server in UE, Francoforte): tabella `record` per i dati,
+archivio privato `file` per foto e documenti. Si entra con email e password, e solo le email presenti
+nella tabella `autorizzati` possono leggere o scrivere (regole RLS in `database/schema.sql`).
+
+Il browser tiene una copia di lavoro, così l'app funziona anche senza segnale: le modifiche partono
+appena torna la connessione. La chiave HERE resta solo sul dispositivo e non va sul database.
 
 Non caricare qui file Excel, backup o documenti: contengono dati personali.

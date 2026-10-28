@@ -26,10 +26,42 @@
        Su PC è una colonna a sinistra, sul telefono una barra in basso (lo decide style.css).
        Le voci con class "secondaria" sul telefono stanno nel menu "Altro". -->
   <!-- Solo sul telefono: il nome dell'azienda in cima alla pagina -->
+  <!-- ===== ACCESSO =====
+       Copre tutta l'app finché non entri. cloud.js la nasconde quando il login è fatto. -->
+  <div id="accesso" class="accesso" data-modo="attesa">
+    <form id="form-accesso" class="pannello-accesso" autocomplete="on">
+      <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
+      <h1>ZUIN AUTOTRASPORTI SRL</h1>
+      <p class="tenue solo-attesa">Collegamento al database…</p>
+
+      <div class="solo-login">
+        <label>Email
+          <input name="email" type="email" autocomplete="username" required>
+        </label>
+        <label>Password
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit">Entra</button>
+        <button type="button" class="link" id="btn-password-dimenticata">Password dimenticata?</button>
+      </div>
+
+      <div class="solo-nuova-password">
+        <p>Scegli la nuova password (almeno 8 caratteri).</p>
+        <label>Nuova password
+          <input name="nuovaPassword" type="password" autocomplete="new-password" minlength="8">
+        </label>
+        <button type="submit">Salva la nuova password</button>
+      </div>
+
+      <p id="esito-accesso" class="errore-testo" role="alert"></p>
+    </form>
+  </div>
+
   <!-- Il logo è il file "logo.png" nella cartella dell'app: se manca, l'immagine si nasconde da sola -->
   <div class="barra-alta">
     <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
     <span id="nome-azienda-telefono">ZUIN AUTOTRASPORTI SRL</span>
+    <span class="stato-sync" aria-live="polite"></span>
   </div>
 
   <aside class="menu">
@@ -38,6 +70,7 @@
       <div>
         <span class="marchio-nome" id="nome-azienda">ZUIN AUTOTRASPORTI SRL</span>
         <span class="marchio-sotto">Gestionale flotta</span>
+        <span class="stato-sync" aria-live="polite"></span>
       </div>
     </div>
 
@@ -475,6 +508,14 @@
         <h1>Dati e impostazioni</h1>
       </header>
 
+      <!-- Chi è collegato; compare solo con il database attivo -->
+      <div class="pannello" id="pannello-account" hidden>
+        <h2>Account</h2>
+        <p>Collegato come <strong id="utente-collegato"></strong>. I dati si salvano sul database
+          e li ritrovi uguali su PC e telefono.</p>
+        <button type="button" class="secondario" id="btn-esci">Esci</button>
+      </div>
+
       <form id="form-impostazioni" class="pannello" autocomplete="off">
         <h2>Impostazioni</h2>
         <p>La chiave HERE resta solo in questo browser: non finisce nel backup e non viene inviata altrove.</p>
@@ -805,5 +846,9 @@
   <script src="modulistica.js"></script>
   <script src="contatti.js"></script>
   <script src="ui.js"></script>
+
+  <!-- Database: la libreria ufficiale di Supabase, poi il nostro collegamento (per ultimo: usa tutto il resto) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="cloud.js"></script>
 </body>
 </html>

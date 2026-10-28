@@ -70,6 +70,7 @@ formImpostazioni.addEventListener('submit', evento => {
     iva: Number(campi.iva.value),
   };
   localStorage.setItem(CHIAVE_IMPOSTAZIONI, JSON.stringify(impostazioni));
+  if (typeof segnaleCambiamento === 'function') segnaleCambiamento();   // anche sul database (tranne la chiave HERE)
   document.getElementById('esito-impostazioni').textContent = 'Impostazioni salvate.';
   aggiornaContatore();
   impostaSfondo();                                          // la chiave potrebbe essere cambiata

@@ -110,6 +110,8 @@ function normalizzaDati(grezzi) {
 
 function salvaDati() {
   localStorage.setItem(CHIAVE_SALVATAGGIO, JSON.stringify(dati));
+  // Se l'app è collegata al database, cloud.js manda le modifiche
+  if (typeof segnaleCambiamento === 'function') segnaleCambiamento();
 }
 
 function nuovoId() {

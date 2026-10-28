@@ -36,14 +36,28 @@ async function contenitoreFoto(modo) {
   return db.transaction('foto', modo).objectStore('foto');
 }
 
-async function leggiFoto(idMezzo) {
+// La copia nel browser (IndexedDB) fa da "magazzino veloce"; il database (cloud.js) è l'archivio vero.
+async function leggiFotoLocale(idMezzo) {
   return richiesta((await contenitoreFoto('readonly')).get(idMezzo));     // un Blob, oppure undefined
 }
-async function salvaFoto(idMezzo, blob) {
-  return richiesta((await contenitoreFoto('readwrite')).put(blob, idMezzo));
+
+async function leggiFoto(idMezzo) {
+  const locale = await leggiFotoLocale(idMezzo);
+  if (locale) return locale;
+  // Non è in questo browser (es. caricata dal telefono): la prendiamo dal database e la teniamo
+  const remota = typeof cloudScaricaFile === 'function' ? await cloudScaricaFile(`foto/${idMezzo}`) : null;
+  if (remota) await richiesta((await contenitoreFoto('readwrite')).put(remota, idMezzo));
+  return remota || undefined;
 }
+
+async function salvaFoto(idMezzo, blob) {
+  await richiesta((await contenitoreFoto('readwrite')).put(blob, idMezzo));
+  if (typeof cloudCaricaFile === 'function') cloudCaricaFile(`foto/${idMezzo}`, blob);   // senza aspettare
+}
+
 async function eliminaFoto(idMezzo) {
-  return richiesta((await contenitoreFoto('readwrite')).delete(idMezzo));
+  await richiesta((await contenitoreFoto('readwrite')).delete(idMezzo));
+  if (typeof cloudEliminaFile === 'function') cloudEliminaFile(`foto/${idMezzo}`);
 }
 
 

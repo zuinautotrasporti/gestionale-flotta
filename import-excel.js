@@ -279,6 +279,7 @@ async function importaExcel(evento) {
     if (nomeNelFile && !impostazioni.nomeAzienda) {
       impostazioni.nomeAzienda = nomeNelFile;
       localStorage.setItem(CHIAVE_IMPOSTAZIONI, JSON.stringify(impostazioni));
+      if (typeof segnaleCambiamento === 'function') segnaleCambiamento();
       mostraImpostazioni();
       mostraNomeAzienda();
     }

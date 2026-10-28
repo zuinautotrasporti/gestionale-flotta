@@ -730,3 +730,56 @@ fieldset.fieldset-documenti { display: block; }
   font-size: 0.72rem; padding: 0 6px; margin-left: 2px;
 }
 .azioni-form .a-sinistra { margin-right: auto; }
+
+
+/* ======================================================================
+   8. ACCESSO E STATO DEL DATABASE (lezione 8)
+   ====================================================================== */
+
+/* La schermata di accesso copre tutta l'app */
+.accesso {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--asfalto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.pannello-accesso {
+  background: var(--carta);
+  border-radius: 12px;
+  padding: 28px 26px;
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pannello-accesso h1 { font-size: 1.35rem; color: var(--asfalto); }
+.pannello-accesso .logo { width: 64px; height: 64px; }
+.pannello-accesso > div { display: flex; flex-direction: column; gap: 12px; }
+.pannello-accesso button[type="submit"] { justify-content: center; padding: 11px; }
+.pannello-accesso button.link { align-self: flex-start; }
+
+/* Cosa mostrare in base al momento: in attesa, login, nuova password */
+.accesso .solo-attesa, .accesso .solo-login, .accesso .solo-nuova-password { display: none; }
+.accesso[data-modo="attesa"] .solo-attesa { display: block; }
+.accesso[data-modo="login"] .solo-login { display: flex; }
+.accesso[data-modo="nuova-password"] .solo-nuova-password { display: flex; }
+.accesso:not([data-modo="login"]) .solo-login input { display: none; }
+
+/* Lo stato del salvataggio, in piccolo sotto il nome dell'azienda */
+.stato-sync { display: block; font-size: 0.75rem; margin-top: 6px; color: #A9BCD3; }
+.stato-sync:empty { display: none; }
+.stato-sync::before { content: '●'; margin-right: 5px; }
+.stato-sync[data-stato="ok"]::before { color: #6FCF8E; }
+.stato-sync[data-stato="attesa"]::before, .stato-sync[data-stato="salvataggio"]::before { color: var(--giallo); }
+.stato-sync[data-stato="offline"]::before, .stato-sync[data-stato="locale"]::before { color: #A9BCD3; }
+.stato-sync[data-stato="errore"]::before { color: #FF7B7B; }
+.stato-sync[data-stato="errore"] { color: #FFB3B3; }
+
+@media (max-width: 760px) {
+  .barra-alta { flex-wrap: wrap; row-gap: 0; }
+  .barra-alta .stato-sync { flex-basis: 100%; margin-top: 2px; font-weight: 400; font-family: var(--font); }
+}
