@@ -8,7 +8,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1F3A5F">
+  <meta name="theme-color" content="#1C4A80">
   <title>Gestionale Flotta</title>
 
   <!-- Icona e nome quando l'app viene aggiunta alla schermata Home del telefono -->
@@ -36,8 +36,8 @@
        Copre tutta l'app finché non entri. cloud.js la nasconde quando il login è fatto. -->
   <div id="accesso" class="accesso" data-modo="attesa">
     <form id="form-accesso" class="pannello-accesso" autocomplete="on">
-      <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
-      <h1>ZUIN AUTOTRASPORTI SRL</h1>
+      <img class="logo-accesso" src="logo-completo.png" alt="ZUIN AUTOTRASPORTI SRL" onerror="this.hidden = true">
+      <h1 class="nome-accesso">ZUIN AUTOTRASPORTI SRL</h1>
       <p class="tenue solo-attesa">Collegamento al database…</p>
 
       <div class="solo-login">
@@ -72,7 +72,8 @@
 
   <aside class="menu">
     <div class="marchio">
-      <img class="logo" src="logo.png" alt="" onerror="this.hidden = true">
+      <!-- Il logo completo (con il nome sotto). Se il file manca, si vede il nome scritto. -->
+      <div class="marchio-logo"><img src="logo-completo.png" alt="ZUIN AUTOTRASPORTI SRL" onerror="this.parentNode.hidden = true"></div>
       <div>
         <span class="marchio-nome" id="nome-azienda">ZUIN AUTOTRASPORTI SRL</span>
         <span class="marchio-sotto">Gestionale flotta</span>

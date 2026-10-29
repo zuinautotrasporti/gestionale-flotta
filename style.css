@@ -18,8 +18,8 @@
    ====================================================================== */
 
 :root {
-  --asfalto: #1F3A5F;          /* menu: blu scuro, lo stesso delle intestazioni del tuo Excel */
-  --asfalto-chiaro: #2D4C76;
+  --asfalto: #1C4A80;          /* menu: blu scuro, accordato con il blu del logo (#1556A3) */
+  --asfalto-chiaro: #2A5C96;
   --fondo: #EEF1F4;            /* sfondo della pagina */
   --carta: #FFFFFF;            /* riquadri */
   --testo: #1C2730;
@@ -149,7 +149,7 @@ main {
   line-height: 1.15;
   letter-spacing: 0.01em;
 }
-.marchio-sotto { display: block; color: #A9BCD3; font-size: 0.82rem; margin-top: 4px; }
+.marchio-sotto { display: block; color: #B8CBE0; font-size: 0.82rem; margin-top: 4px; }
 
 /* Barra con il nome dell'azienda: visibile solo sul telefono (vedi sezione 6) */
 .barra-alta { display: none; }
@@ -770,16 +770,26 @@ fieldset.fieldset-documenti { display: block; }
 .accesso:not([data-modo="login"]) .solo-login input { display: none; }
 
 /* Lo stato del salvataggio, in piccolo sotto il nome dell'azienda */
-.stato-sync { display: block; font-size: 0.75rem; margin-top: 6px; color: #A9BCD3; }
+.stato-sync { display: block; font-size: 0.75rem; margin-top: 6px; color: #B8CBE0; }
 .stato-sync:empty { display: none; }
 .stato-sync::before { content: '●'; margin-right: 5px; }
 .stato-sync[data-stato="ok"]::before { color: #6FCF8E; }
 .stato-sync[data-stato="attesa"]::before, .stato-sync[data-stato="salvataggio"]::before { color: var(--giallo); }
-.stato-sync[data-stato="offline"]::before, .stato-sync[data-stato="locale"]::before { color: #A9BCD3; }
+.stato-sync[data-stato="offline"]::before, .stato-sync[data-stato="locale"]::before { color: #B8CBE0; }
 .stato-sync[data-stato="errore"]::before { color: #FF7B7B; }
 .stato-sync[data-stato="errore"] { color: #FFB3B3; }
 
 @media (max-width: 760px) {
   .barra-alta { flex-wrap: wrap; row-gap: 0; }
   .barra-alta .stato-sync { flex-basis: 100%; margin-top: 2px; font-weight: 400; font-family: var(--font); }
+}
+
+/* Logo completo (camion + nome) nel menu laterale e nell'accesso */
+.marchio { flex-direction: column; align-items: stretch; gap: 10px; }
+.marchio-logo { background: #fff; border-radius: 8px; padding: 10px 12px; }
+.marchio-logo img { display: block; width: 100%; height: auto; }
+.marchio:has(.marchio-logo:not([hidden])) .marchio-nome { display: none; }   /* il nome c'è già nel logo */
+.logo-accesso { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto 4px; }
+.pannello-accesso:has(.logo-accesso:not([hidden])) .nome-accesso {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);   /* resta per i lettori di schermo */
 }

@@ -64,7 +64,7 @@ function htmlBiglietto(c, conLogo) {
   // Online il logo ha un indirizzo web pubblico: così lo vede anche il cliente che riceve l'email.
   // Aperta dal PC come file, invece, l'immagine starebbe solo sul tuo computer: nell'email non la mettiamo.
   const indirizzoLogo = location.protocol === 'https:' ? new URL('logo.png', location.href).href : (conLogo ? 'logo.png' : '');
-  const logo = indirizzoLogo && document.querySelector('.marchio .logo:not([hidden])')
+  const logo = indirizzoLogo && document.querySelector('.barra-alta .logo:not([hidden])')
     ? `<img src="${indirizzoLogo}" alt="" width="64" height="64" onerror="this.remove()" style="height:64px;width:64px;object-fit:contain;margin-right:12px;vertical-align:middle">`
     : '';
   const persona = [c.referente, c.ruolo].filter(Boolean).map(esc).join(' – ');
