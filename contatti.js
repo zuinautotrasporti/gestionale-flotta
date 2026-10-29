@@ -61,8 +61,11 @@ function testoBiglietto(c) {
 // La tabella non è per i dati: è il modo più sicuro per impaginare nelle email.
 function htmlBiglietto(c, conLogo) {
   const BLU = '#1F3A5F';
-  const logo = conLogo && document.querySelector('.marchio .logo:not([hidden])')
-    ? `<img src="logo.png" alt="" onerror="this.remove()" style="height:44px;max-width:120px;object-fit:contain;margin-right:12px;vertical-align:middle">`
+  // Online il logo ha un indirizzo web pubblico: così lo vede anche il cliente che riceve l'email.
+  // Aperta dal PC come file, invece, l'immagine starebbe solo sul tuo computer: nell'email non la mettiamo.
+  const indirizzoLogo = location.protocol === 'https:' ? new URL('logo.png', location.href).href : (conLogo ? 'logo.png' : '');
+  const logo = indirizzoLogo && document.querySelector('.marchio .logo:not([hidden])')
+    ? `<img src="${indirizzoLogo}" alt="" width="64" height="64" onerror="this.remove()" style="height:64px;width:64px;object-fit:contain;margin-right:12px;vertical-align:middle">`
     : '';
   const persona = [c.referente, c.ruolo].filter(Boolean).map(esc).join(' – ');
   const righe = righeContatti(c).map(([etichetta, valore]) => {
@@ -160,7 +163,7 @@ document.getElementById('btn-copia-testo').addEventListener('click', async () =>
 
 document.getElementById('btn-copia-biglietto').addEventListener('click', async () => {
   const c = contattiAttuali();
-  const html = htmlBiglietto(c, false);   // senza logo: un'immagine sul tuo PC il cliente non la vedrebbe
+  const html = htmlBiglietto(c, false);   // il logo c'è solo se l'app è online (vedi htmlBiglietto)
   try {
     await navigator.clipboard.write([new ClipboardItem({
       'text/html': new Blob([html], { type: 'text/html' }),
