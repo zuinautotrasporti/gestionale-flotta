@@ -793,3 +793,19 @@ fieldset.fieldset-documenti { display: block; }
 .pannello-accesso:has(.logo-accesso:not([hidden])) .nome-accesso {
   position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);   /* resta per i lettori di schermo */
 }
+
+/* Visore di foto e documenti */
+dialog.visore { width: min(900px, 96vw); padding: 0; z-index: 3000; }
+.testa-visore { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--bordo); }
+.testa-visore h2 { margin: 0; flex: 1; font-size: 1.15rem; overflow-wrap: anywhere; }
+.corpo-visore { padding: 16px 18px 20px; }
+.immagine-visore { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; object-fit: contain; }
+.pdf-visore { display: flex; align-items: center; gap: 14px; padding: 10px 0 6px; }
+.pdf-visore svg { width: 44px; height: 44px; fill: none; stroke: var(--blu); stroke-width: 1.5; flex: none; }
+.azioni-visore { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.azioni-visore .bottone { text-decoration: none; }
+@media (max-width: 760px) {
+  dialog.visore { width: 100vw; height: 100dvh; max-height: 100dvh; }
+  .immagine-visore { max-height: calc(100dvh - 170px); }
+  .azioni-visore .bottone { flex: 1; justify-content: center; padding: 12px; }
+}

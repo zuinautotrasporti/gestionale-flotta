@@ -322,6 +322,17 @@ async function cloudScaricaFile(percorso) {
   }
 }
 
+// Un indirizzo web temporaneo (10 minuti) per aprire un file con il lettore del telefono
+async function cloudIndirizzoFirmato(percorso) {
+  if (!utente) return null;
+  try {
+    const { data, error } = await db.storage.from('file').createSignedUrl(percorso, 600);
+    return error ? null : data.signedUrl;
+  } catch {
+    return null;
+  }
+}
+
 async function cloudEliminaFile(percorso) {
   if (!utente) return;
   segnaFileInSospeso(percorso, false);

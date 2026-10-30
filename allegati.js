@@ -134,10 +134,75 @@ async function indirizzoAllegato(allegato) {
   return URL.createObjectURL(blob);
 }
 
-async function apriAllegato(allegato) {
+// Sul telefono (schermo touch) la stampa diretta non funziona: "Stampa" apre il visore,
+// e da lì si stampa con il menu Condividi/Stampa del telefono
+const SU_TELEFONO = matchMedia('(pointer: coarse)').matches;
+
+/* ---------- Il visore: i documenti si guardano DENTRO l'app ----------
+   Prima aprivamo una nuova finestra, ma i telefoni la bloccano se non nasce subito dal tocco
+   (noi prima dobbiamo recuperare il file) e l'app installata non sa mostrare file "in memoria".
+   Ora: le immagini compaiono nel visore; per i PDF il visore prepara un pulsante "Apri il PDF".
+   Toccandolo, il telefono lo apre con il suo lettore di PDF: è un tocco "fresco", quindi non viene bloccato. */
+
+const dialogVisore = document.getElementById('dialog-visore');
+let indirizziVisore = [];
+
+function chiudiVisore() {
+  dialogVisore.close();
+}
+dialogVisore.addEventListener('close', () => {
+  indirizziVisore.forEach(u => URL.revokeObjectURL(u));
+  indirizziVisore = [];
+  dialogVisore.querySelector('.corpo-visore').innerHTML = '';
+});
+dialogVisore.querySelector('[data-chiudi-visore]').addEventListener('click', chiudiVisore);
+dialogVisore.addEventListener('click', e => { if (e.target === dialogVisore) chiudiVisore(); });
+
+// titolo: cosa mostrare in alto; percorso: dove sta il file sul database; leggi(): restituisce il file
+async function apriVisore({ titolo, nomeFile, tipo, percorso, leggi }) {
+  const corpo = dialogVisore.querySelector('.corpo-visore');
+  dialogVisore.querySelector('.titolo-visore').textContent = titolo;
+  corpo.innerHTML = '<p class="tenue">Caricamento…</p>';
+  if (!dialogVisore.open) dialogVisore.showModal();
+
   try {
-    window.open(await indirizzoAllegato(allegato), '_blank');
-  } catch (errore) { alert(errore.message); }
+    const blob = await leggi();
+    if (!blob) throw new Error('Il file non si trova: controlla la connessione e riprova.');
+    const locale = URL.createObjectURL(blob);
+    indirizziVisore.push(locale);
+    const scarica = `<a class="bottone secondario" href="${locale}" download="${esc(nomeFile)}">Scarica</a>`;
+
+    if ((tipo || blob.type).startsWith('image/')) {
+      corpo.innerHTML = `
+        <img class="immagine-visore" src="${locale}" alt="${esc(titolo)}">
+        <div class="azioni-visore">${scarica}</div>`;
+    } else {
+      // Per il PDF usiamo, se c'è, un indirizzo web temporaneo del database (valido 10 minuti):
+      // è un vero link https, che tutti i telefoni sanno aprire. Altrimenti la copia nel browser.
+      const remoto = percorso && typeof cloudIndirizzoFirmato === 'function' ? await cloudIndirizzoFirmato(percorso) : null;
+      corpo.innerHTML = `
+        <div class="pdf-visore">
+          ${ICONA_PDF}
+          <p><strong>${esc(nomeFile)}</strong><br><span class="tenue">${formattaDimensione(blob.size)}</span></p>
+        </div>
+        <div class="azioni-visore">
+          <a class="bottone" href="${remoto || locale}" target="_blank" rel="noopener">Apri il PDF</a>
+          ${scarica}
+        </div>`;
+    }
+  } catch (errore) {
+    corpo.innerHTML = `<p class="errore-testo">${esc(errore.message)}</p>`;
+  }
+}
+
+function apriAllegato(allegato) {
+  apriVisore({
+    titolo: allegato.titolo || allegato.categoria,
+    nomeFile: allegato.nomeFile,
+    tipo: allegato.tipoFile,
+    percorso: `allegati/${allegato.id}`,
+    leggi: () => leggiFileAllegato(allegato.id),
+  });
 }
 
 async function scaricaAllegato(allegato) {
@@ -153,6 +218,7 @@ async function scaricaAllegato(allegato) {
 // Aprendo l'app come file dal PC alcuni browser non lo permettono: in quel caso apriamo il file
 // in una nuova scheda e basta premere Ctrl+P. Online (dopo GitHub) funzionerà direttamente.
 async function stampaAllegato(allegato) {
+  if (SU_TELEFONO) return apriAllegato(allegato);
   let indirizzo;
   try { indirizzo = await indirizzoAllegato(allegato); } catch (errore) { return alert(errore.message); }
 
@@ -171,7 +237,7 @@ async function stampaAllegato(allegato) {
         cornice.contentWindow.focus();
         cornice.contentWindow.print();
       } catch {
-        window.open(indirizzo, '_blank');
+        apriAllegato(allegato);
         avvisoStampa();
       }
       setTimeout(() => cornice.remove(), 60000);

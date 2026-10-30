@@ -135,7 +135,10 @@ async function mostraFotoScheda(mezzo) {
   }
 
   // Toccando la foto si apre a grandezza piena in una nuova scheda
-  riquadro.querySelector('img')?.addEventListener('click', () => window.open(indirizzoFotoMostrata, '_blank'));
+  riquadro.querySelector('img')?.addEventListener('click', () => apriVisore({
+    titolo: `Foto ${mezzo.targa}`, nomeFile: `foto-${mezzo.targa}.jpg`, tipo: 'image/jpeg',
+    leggi: () => leggiFoto(mezzo.id),
+  }));
 
   riquadro.querySelector('input[type=file]').addEventListener('change', async evento => {
     const file = evento.target.files[0];
