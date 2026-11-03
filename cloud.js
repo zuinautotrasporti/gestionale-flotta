@@ -117,13 +117,24 @@ function segnaleCambiamento() {
   if (!utente) return;
   mostraStatoSync('attesa');
   clearTimeout(attesaSync);
-  attesaSync = setTimeout(sincronizza, 1000);
+  attesaSync = setTimeout(sincronizza, 300);
 }
+
+// Se chiudi o riduci l'app mentre una modifica è in attesa, la mandiamo subito
+function mandaSubito() {
+  if (!utente || !attesaSync) return;
+  clearTimeout(attesaSync);
+  attesaSync = null;
+  sincronizza();
+}
+window.addEventListener('pagehide', mandaSubito);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') mandaSubito(); });
 
 async function sincronizza() {
   if (!utente) return;
   if (sincronizzazioneInCorso) { daRifare = true; return; }
   sincronizzazioneInCorso = true;
+  attesaSync = null;
   mostraStatoSync('salvataggio');
 
   try {
@@ -156,12 +167,14 @@ async function sincronizza() {
 
     scriviAllineato(allineato);
     await caricaFileInSospeso();
+    segnaUltimoSalvataggio(null);
     mostraStatoSync(fileInSospeso().length ? 'attesa' : 'ok');
   } catch (errore) {
     console.error('Sincronizzazione non riuscita:', errore);
     if (/row-level security|permission denied/i.test(errore.message || '')) {
       // Login fatto, ma l'email non è nella lista "autorizzati" del database
       mostraStatoSync('errore', 'Email non autorizzata: va aggiunta alla tabella "autorizzati" in Supabase.');
+      segnaUltimoSalvataggio(errore.message);
       if (!avvisatoNonAutorizzato) {
         avvisatoNonAutorizzato = true;
         alert(`L'email ${utente.email} non è tra gli utenti autorizzati del database.\n` +
@@ -172,6 +185,7 @@ async function sincronizza() {
       return;
     }
     mostraStatoSync(eProblemaDiRete(errore) ? 'offline' : 'errore', errore.message);
+    segnaUltimoSalvataggio(errore.message);
     clearTimeout(attesaSync);
     attesaSync = setTimeout(sincronizza, 15000);           // riproviamo tra 15 secondi
   } finally {
@@ -274,9 +288,30 @@ async function scaricaEUnisci() {
   }
 }
 
-// Quando torni sull'app (dal telefono o da un'altra scheda) prendiamo le novità, al massimo ogni 30 secondi
+// Quando torni sull'app prendiamo le novità (al massimo ogni 15 secondi),
+// e mentre è aperta controlliamo da soli una volta al minuto
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && Date.now() - ultimoScaricamento > 30000) scaricaEUnisci();
+  if (document.visibilityState === 'visible' && Date.now() - ultimoScaricamento > 15000) scaricaEUnisci();
+});
+setInterval(() => {
+  if (utente && document.visibilityState === 'visible' && !sincronizzazioneInCorso) scaricaEUnisci();
+}, 60000);
+
+// Nel pannello Account: ora dell'ultimo salvataggio riuscito, oppure l'errore preciso
+function segnaUltimoSalvataggio(errore) {
+  const el = document.getElementById('ultimo-salvataggio');
+  if (!el) return;
+  el.className = errore ? 'errore-testo' : 'tenue';
+  el.textContent = errore
+    ? `Ultimo tentativo non riuscito: ${errore}`
+    : `Ultimo salvataggio sul database: ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+}
+
+document.getElementById('btn-aggiorna-ora').addEventListener('click', async evento => {
+  evento.target.disabled = true;
+  await sincronizza();
+  await scaricaEUnisci();
+  evento.target.disabled = false;
 });
 window.addEventListener('online', () => scaricaEUnisci());
 window.addEventListener('offline', () => utente && mostraStatoSync('offline'));
