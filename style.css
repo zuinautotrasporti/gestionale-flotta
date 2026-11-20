@@ -809,3 +809,70 @@ dialog.visore { width: min(900px, 96vw); padding: 0; z-index: 3000; }
   .immagine-visore { max-height: calc(100dvh - 170px); }
   .azioni-visore .bottone { flex: 1; justify-content: center; padding: 12px; }
 }
+
+
+/* ======================================================================
+   9. FLOTTA A SCHEDE E VIAGGI (lezione 9)
+   ====================================================================== */
+
+/* Sottovoci del menu sotto "Flotta" (solo su PC) */
+.voci button.sottovoce {
+  padding: 6px 12px 6px 44px;      /* rientrate: partono dove inizia il testo di "Flotta" */
+  font-size: 0.9rem;
+  color: #A9BDD4;
+}
+.voci button.sottovoce.attiva { background: none; color: #fff; box-shadow: inset 3px 0 0 var(--giallo); }
+
+/* Schede in cima a una pagina (Flotta: Mezzi / Semirimorchi) */
+.schede-pagina { display: flex; gap: 4px; border-bottom: 1px solid var(--bordo); margin: -6px 0 20px; }
+.schede-pagina button {
+  background: none; border: none; border-radius: 0;
+  color: var(--tenue); padding: 10px 16px; margin-bottom: -1px;
+  border-bottom: 3px solid transparent;
+}
+.schede-pagina button:hover { background: none; color: var(--testo); }
+.schede-pagina button[aria-selected="true"] { color: var(--testo); border-bottom-color: var(--blu); }
+.schede-pagina button span {
+  font-size: 0.78rem; background: var(--grigio-tenue); color: var(--tenue);
+  border-radius: 999px; padding: 0 7px;
+}
+.schede-pagina button span:empty { display: none; }
+
+/* Pulsanti filtro (Tutti, Programmati, ...): come pastiglie, quella scelta è piena */
+.filtri { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.filtri button { background: var(--carta); color: var(--testo); border-color: var(--bordo); border-radius: 999px; padding: 5px 14px; font-size: 0.9rem; }
+.filtri button:hover { background: var(--grigio-tenue); }
+.filtri button[aria-pressed="true"] { background: var(--asfalto); border-color: var(--asfalto); color: #fff; }
+
+/* Stato "in viaggio": blu, come le azioni in corso */
+.badge.in-corso { background: var(--blu-tenue); color: var(--blu); }
+.card.in-corso { border-top-color: var(--blu); }
+
+/* Finestra del viaggio */
+#dialog-viaggio { width: min(720px, 96vw); }
+#dialog-viaggio > form > label { margin-bottom: 16px; }
+label.bottone.foto-bolla { flex-direction: row; align-self: flex-start; margin-bottom: 12px; }
+.foto-bolla svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+label.spunta { flex-direction: row; align-items: center; gap: 8px; font-weight: 500; }
+label.spunta input { width: 18px; height: 18px; }
+#importo-viaggio { margin: 0; font-weight: 600; color: var(--testo); }
+
+@media (max-width: 760px) {
+  .voci button.sottovoce { display: none; }
+  .schede-pagina button { flex: 1; justify-content: center; }
+  .filtri { flex-wrap: nowrap; overflow-x: auto; margin-left: -14px; margin-right: -14px; padding: 0 14px 4px; }
+  .filtri button { flex: none; }
+  label.bottone.foto-bolla { width: 100%; justify-content: center; padding: 12px; }
+}
+/* In Viaggi la tabella ha molte colonne: località e targhe possono andare a capo */
+#vista-viaggi td.a-capo { white-space: normal; min-width: 130px; }
+#vista-viaggi td.a-capo .targa { margin: 2px 0; }
+#vista-viaggi tr.riga-apribile { cursor: pointer; }
+#vista-viaggi tr.riga-apribile button.link { color: var(--testo); font-weight: 600; }
+/* I campi della finestra non devono allargarla (es. il nome lungo di una tratta nel menu) */
+#dialog-viaggio label { min-width: 0; }
+#dialog-viaggio fieldset input:not([type=checkbox]), #dialog-viaggio fieldset select { width: 100%; }
+@media (max-width: 760px) {
+  #dialog-viaggio { width: 100vw; }
+  #dialog-viaggio fieldset { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}

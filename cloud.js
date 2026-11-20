@@ -21,7 +21,14 @@ const SUPABASE_URL = 'https://akuacielimwfrpinhkvl.supabase.co';
 const SUPABASE_CHIAVE = 'sb_publishable_cplad-BKlIMCW12cI2FSJw_1gHwWgIP';
 
 const CHIAVE_ALLINEATO = 'gestionale-flotta-allineato';
-const COLLEZIONI = ['mezzi', 'autisti', 'tratte', 'carte', 'allegati'];
+const COLLEZIONI = ['mezzi', 'autisti', 'tratte', 'carte', 'allegati', 'viaggi'];
+
+// Le righe che questa versione dell'app conosce. Una riga di un'altra collezione (es. aggiunta da una
+// versione più nuova) NON va mai cancellata da qui: semplicemente la ignoriamo.
+function collezioneConosciuta(chiave) {
+  const collezione = chiave.split('|')[0];
+  return COLLEZIONI.includes(collezione) || collezione === 'contatti' || collezione === 'impostazioni';
+}
 
 let db = null;              // il "client" Supabase
 let utente = null;          // l'utente collegato (null = nessuno)
@@ -77,7 +84,7 @@ function righeLocali() {
 
 // Rimette insieme "dati" a partire da un elenco di righe
 function datiDaRighe(righe) {
-  const nuovi = { mezzi: [], autisti: [], tratte: [], carte: [], allegati: [], contatti: {} };
+  const nuovi = { mezzi: [], autisti: [], tratte: [], carte: [], allegati: [], viaggi: [], contatti: {} };
   let impostazioniCondivise = null;
   for (const { collezione, oggetto } of righe.values()) {
     if (COLLEZIONI.includes(collezione)) nuovi[collezione].push(oggetto);
@@ -147,7 +154,7 @@ async function sincronizza() {
       const im = impronta(riga.oggetto);
       if (allineato[chiave] !== im) daSalvare.push({ chiave, im, riga });
     }
-    const daEliminare = Object.keys(allineato).filter(chiave => !locali.has(chiave));
+    const daEliminare = Object.keys(allineato).filter(chiave => collezioneConosciuta(chiave) && !locali.has(chiave));
 
     if (daSalvare.length) {
       const adesso = new Date().toISOString();
@@ -240,7 +247,8 @@ function applicaDati(nuovi, impostazioniCondivise) {
 }
 
 function quantiDatiLocali() {
-  return dati.mezzi.length + dati.autisti.length + dati.tratte.length + dati.carte.length + dati.allegati.length;
+  return dati.mezzi.length + dati.autisti.length + dati.tratte.length + dati.carte.length + dati.allegati.length +
+    (dati.viaggi || []).length;
 }
 
 let ultimoScaricamento = 0;
@@ -487,7 +495,7 @@ async function dopoAccesso() {
 function modificheInSospeso() {
   const allineato = leggiAllineato() || {};
   const locali = righeLocali();
-  let quante = Object.keys(allineato).filter(k => !locali.has(k)).length;
+  let quante = Object.keys(allineato).filter(k => collezioneConosciuta(k) && !locali.has(k)).length;
   for (const [chiave, riga] of locali) if (allineato[chiave] !== impronta(riga.oggetto)) quante++;
   return quante + fileInSospeso().length;
 }

@@ -12,12 +12,13 @@ documenti caricati, calcolo dei percorsi per camion (con pedaggi), tratte e marg
 | `index.html` | la struttura delle pagine |
 | `style.css` | l'aspetto grafico |
 | `app.js` | dati, regole delle scadenze, mezzi e autisti |
-| `ui.js` | panoramica, schede, ricerca e ordinamento, versione per telefono |
+| `ui.js` | panoramica, schede (anche Flotta: Mezzi / Semirimorchi), ricerca e ordinamento, versione per telefono |
 | `import-excel.js` | importazione dal file Excel |
 | `percorso.js` | calcolo dei percorsi con HERE |
 | `tratte.js` | tratte salvate, costi e margini |
 | `foto.js` | foto dei mezzi |
 | `allegati.js` | documenti caricati (PDF e immagini) |
+| `viaggi.js` | viaggi: bolla (DDT) fotografata, peso, importo, da fatturare |
 | `carte.js` | carte carburante |
 | `modulistica.js` | documenti di uso quotidiano |
 | `contatti.js` | biglietto da visita |

@@ -90,9 +90,17 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         <span>Scadenze</span><span class="contatore-menu" id="menu-scadenze"></span>
       </button>
+      <!-- "Flotta" apre la pagina dei mezzi. Su PC sotto ci sono le due sottovoci (Mezzi e Semirimorchi);
+           sul telefono le sottovoci non ci sono: le due schede stanno in cima alla pagina. -->
       <button class="tab" data-vista="mezzi">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16V7h11v9M13 10h4l4 4v2h-8"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
-        <span>Mezzi</span>
+        <span>Flotta</span>
+      </button>
+      <button class="sottovoce" data-flotta="mezzi">Mezzi</button>
+      <button class="sottovoce" data-flotta="semirimorchi">Semirimorchi</button>
+      <button class="tab" data-vista="viaggi">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></svg>
+        <span>Viaggi</span>
       </button>
       <button class="tab" data-vista="percorso">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H16a3 3 0 0 0 0-6H8a3 3 0 0 1 0-6h7.5"/></svg>
@@ -204,12 +212,19 @@
     <!-- Nei dati il semirimorchio resta tipo "rimorchio": cambia solo come lo mostriamo. -->
     <section id="vista-mezzi" class="vista nascosta">
       <header class="testata testata-riga">
-        <h1>Mezzi</h1>
+        <h1>Flotta</h1>
         <div class="strumenti">
           <input type="search" class="cerca" data-cerca="#vista-mezzi" placeholder="Cerca targa, marca, autista">
         </div>
       </header>
 
+      <!-- Le due schede della flotta: "Mezzi" = trattori + auto, "Semirimorchi" a parte -->
+      <div class="schede-pagina" role="tablist">
+        <button role="tab" data-flotta="mezzi" aria-selected="true">Mezzi <span id="conta-scheda-mezzi"></span></button>
+        <button role="tab" data-flotta="semirimorchi" aria-selected="false">Semirimorchi <span id="conta-scheda-semirimorchi"></span></button>
+      </div>
+
+      <div data-gruppo-flotta="mezzi">
       <div class="titolo-sezione">
         <h2>Trattori <span id="conta-trattori" class="tenue"></span></h2>
         <button data-nuovo-tipo="trattore">Aggiungi trattore</button>
@@ -233,6 +248,27 @@
       </div>
 
       <div class="titolo-sezione">
+        <h2>Auto aziendali <span id="conta-auto" class="tenue"></span></h2>
+        <button data-nuovo-tipo="auto">Aggiungi auto</button>
+      </div>
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Targa</th>
+              <th>Marca e modello</th>
+              <th>Anno</th>
+              <th>Stato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabella-auto"></tbody>
+        </table>
+      </div>
+      </div>
+
+      <div data-gruppo-flotta="semirimorchi" hidden>
+      <div class="titolo-sezione">
         <h2>Semirimorchi <span id="conta-semirimorchi" class="tenue"></span></h2>
         <button data-nuovo-tipo="rimorchio">Aggiungi semirimorchio</button>
       </div>
@@ -254,23 +290,6 @@
         </table>
       </div>
 
-      <div class="titolo-sezione">
-        <h2>Auto aziendali <span id="conta-auto" class="tenue"></span></h2>
-        <button data-nuovo-tipo="auto">Aggiungi auto</button>
-      </div>
-      <div class="contenitore-tabella">
-        <table>
-          <thead>
-            <tr>
-              <th>Targa</th>
-              <th>Marca e modello</th>
-              <th>Anno</th>
-              <th>Stato</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tabella-auto"></tbody>
-        </table>
       </div>
     </section>
 
@@ -400,6 +419,52 @@
       </div>
       <p class="nota">Costo netto: gasolio e pedaggio senza IVA, più manutenzione (€/km) e autista (€/ora),
         come nel foglio TRATTE. Le tariffe si cambiano in Dati e impostazioni.</p>
+    </section>
+
+
+    <!-- ===== VIAGGI ===== -->
+    <!-- Un viaggio è un trasporto fatto (o da fare): chi, con quali mezzi, da dove a dove, quanto peso,
+         il numero della bolla e la sua foto. Da qui nasce il "da fatturare". La logica sta in viaggi.js. -->
+    <section id="vista-viaggi" class="vista nascosta">
+      <header class="testata testata-riga">
+        <h1>Viaggi</h1>
+        <div class="strumenti">
+          <input type="search" class="cerca" data-cerca="#vista-viaggi" placeholder="Cerca cliente, località, targa, DDT">
+          <button id="btn-nuovo-viaggio">Nuovo viaggio</button>
+        </div>
+      </header>
+
+      <div id="riepilogo-viaggi" class="contatori"></div>
+
+      <div class="filtri" id="filtri-viaggi" role="group" aria-label="Quali viaggi mostrare">
+        <button data-filtro="tutti" aria-pressed="true">Tutti</button>
+        <button data-filtro="Programmato" aria-pressed="false">Programmati</button>
+        <button data-filtro="In viaggio" aria-pressed="false">In viaggio</button>
+        <button data-filtro="Consegnato" aria-pressed="false">Consegnati</button>
+        <button data-filtro="Problema" aria-pressed="false">Problemi</button>
+        <button data-filtro="da-fatturare" aria-pressed="false">Da fatturare</button>
+      </div>
+
+      <div class="contenitore-tabella">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Da → A</th>
+              <th>Mezzi</th>
+              <th>Autista</th>
+              <th>Peso (t)</th>
+              <th>DDT</th>
+              <th>Importo</th>
+              <th>Stato</th>
+            </tr>
+          </thead>
+          <tbody id="tabella-viaggi"></tbody>
+        </table>
+      </div>
+      <p class="nota">Importo = peso × prezzo €/t (oppure l'importo "a corpo", se lo scrivi). È senza IVA.
+        Un viaggio consegnato e non ancora segnato come fatturato conta nel "Da fatturare". Tocca una riga per aprirla.</p>
     </section>
 
     <!-- ===== CARTE CARBURANTE ===== -->
@@ -851,6 +916,94 @@
     </form>
   </dialog>
 
+  <!-- ===== FINESTRA: NUOVO / MODIFICA VIAGGIO ===== -->
+  <dialog id="dialog-viaggio">
+    <form id="form-viaggio">
+      <h2 id="titolo-form-viaggio">Nuovo viaggio</h2>
+
+      <fieldset>
+        <legend>Viaggio</legend>
+        <label>Data
+          <input name="data" type="date" required>
+        </label>
+        <label>Stato
+          <select name="stato">
+            <option>Programmato</option>
+            <option>In viaggio</option>
+            <option>Consegnato</option>
+            <option>Problema</option>
+          </select>
+        </label>
+        <label>N° DDT (bolla)
+          <input name="ddt" autocomplete="off">
+        </label>
+        <label class="intera-fieldset">Copia da una tratta salvata <span class="tenue">(facoltativo: riempie cliente, località, mezzi e prezzo)</span>
+          <select name="tratta"></select>
+        </label>
+        <label>Cliente
+          <input name="cliente" list="elenco-clienti-viaggi" autocomplete="off">
+        </label>
+        <label>Partenza
+          <input name="partenza">
+        </label>
+        <label>Destinazione
+          <input name="destinazione">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mezzi e autista</legend>
+        <label>Trattore
+          <select name="trattore"></select>
+        </label>
+        <label>Semirimorchio
+          <select name="rimorchio"></select>
+        </label>
+        <label>Autista
+          <select name="autista"></select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Peso e prezzo (senza IVA)</legend>
+        <label>Peso (t)
+          <input name="peso" type="number" min="0" step="0.001" inputmode="decimal" placeholder="dalla bolla o dalla pesa">
+        </label>
+        <label>Prezzo (€/t)
+          <input name="prezzoTonnellata" type="number" min="0" step="0.01" inputmode="decimal">
+        </label>
+        <label>Oppure a corpo (€)
+          <input name="importoCorpo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="se il prezzo è fisso">
+        </label>
+        <p class="intera-fieldset tenue" id="importo-viaggio"></p>
+        <label class="spunta intera-fieldset">
+          <input name="fatturato" type="checkbox"> Già fatturato
+        </label>
+      </fieldset>
+
+      <label>Note
+        <input name="note">
+      </label>
+
+      <fieldset class="fieldset-documenti">
+        <legend>Bolla e documenti</legend>
+        <label class="bottone foto-bolla">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          Fotografa la bolla
+          <input type="file" accept="image/*" capture="environment" hidden id="input-foto-bolla">
+        </label>
+        <div id="allegati-viaggio"></div>
+      </fieldset>
+
+      <div class="azioni-form">
+        <button type="button" class="secondario pericolo a-sinistra" id="btn-elimina-viaggio">Elimina</button>
+        <button type="button" class="secondario" data-chiudi>Annulla</button>
+        <button type="submit">Salva</button>
+      </div>
+    </form>
+    <datalist id="elenco-clienti-viaggi"></datalist>
+  </dialog>
+
   <!-- Librerie esterne: SheetJS (leggere Excel) e Leaflet (mappe). Servono internet la prima volta. -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -862,6 +1015,7 @@
   <script src="tratte.js"></script>
   <script src="foto.js"></script>
   <script src="allegati.js"></script>
+  <script src="viaggi.js"></script>
   <script src="carte.js"></script>
   <script src="modulistica.js"></script>
   <script src="contatti.js"></script>

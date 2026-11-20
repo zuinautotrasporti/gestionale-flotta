@@ -54,6 +54,37 @@ function vaiA(vista) {
 }
 document.querySelectorAll('[data-vai]').forEach(b => b.addEventListener('click', () => vaiA(b.dataset.vai)));
 
+
+/* --- Flotta: due schede, "Mezzi" (trattori + auto) e "Semirimorchi" ---
+   Su PC le scegli anche dalle sottovoci del menu; sul telefono dalle schede in cima alla pagina.
+   Mentre cerchi una targa si vedono tutte e due, così la trovi qualunque sia. */
+let schedaFlotta = 'mezzi';
+const ricercaFlotta = document.querySelector('#vista-mezzi input.cerca');
+
+function mostraFlotta(scheda) {
+  if (scheda) schedaFlotta = scheda;
+  const cercando = ricercaFlotta.value.trim() !== '';
+  document.querySelectorAll('[data-gruppo-flotta]').forEach(gruppo =>
+    gruppo.hidden = !cercando && gruppo.dataset.gruppoFlotta !== schedaFlotta);
+  document.querySelectorAll('.schede-pagina [data-flotta]').forEach(b =>
+    b.setAttribute('aria-selected', String(b.dataset.flotta === schedaFlotta)));
+  // La sottovoce del menu è evidenziata solo quando sei davvero nella pagina Flotta
+  const inFlotta = !document.getElementById('vista-mezzi').classList.contains('nascosta');
+  document.querySelectorAll('.sottovoce').forEach(b =>
+    b.classList.toggle('attiva', inFlotta && b.dataset.flotta === schedaFlotta));
+  // Il numero di mezzi in ogni scheda
+  const quanti = tipi => dati.mezzi.filter(m => tipi.includes(m.tipo)).length;
+  document.getElementById('conta-scheda-mezzi').textContent = quanti(['trattore', 'auto']);
+  document.getElementById('conta-scheda-semirimorchi').textContent = quanti(['rimorchio']);
+}
+
+document.querySelectorAll('[data-flotta]').forEach(b => b.addEventListener('click', () => {
+  if (b.classList.contains('sottovoce')) vaiA('mezzi');
+  mostraFlotta(b.dataset.flotta);
+}));
+ricercaFlotta.addEventListener('input', () => mostraFlotta());
+document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => mostraFlotta()));
+
 const NOME_AZIENDA_PREDEFINITO = 'ZUIN AUTOTRASPORTI SRL';
 
 function mostraNomeAzienda() {
@@ -407,6 +438,7 @@ function dopoDisegno() {
     etichettaCelle(tabella);
   });
   document.querySelectorAll('input.cerca').forEach(applicaRicerca);
+  mostraFlotta();
 }
 
 // Anche il filtro "Da sistemare / Tutte" ridisegna la tabella: rimettiamo etichette e ricerca
