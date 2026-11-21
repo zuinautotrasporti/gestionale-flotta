@@ -24,7 +24,9 @@
 
   <!-- Leaflet: libreria gratuita per disegnare mappe -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css">
+  <!-- "?v=data" dopo i nostri file: quando cambi l'app, cambia questa data in TUTTI i file qui sotto.
+       Così il browser scarica per forza i file nuovi, invece di mischiare file nuovi e vecchi presi dalla cache. -->
+  <link rel="stylesheet" href="style.css?v=2026-11-21">
 </head>
 <body>
 
@@ -1009,20 +1011,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <!-- L'ordine conta: app.js definisce i dati, gli altri file li usano; ui.js per ultimo -->
-  <script src="app.js"></script>
-  <script src="import-excel.js"></script>
-  <script src="percorso.js"></script>
-  <script src="tratte.js"></script>
-  <script src="foto.js"></script>
-  <script src="allegati.js"></script>
-  <script src="viaggi.js"></script>
-  <script src="carte.js"></script>
-  <script src="modulistica.js"></script>
-  <script src="contatti.js"></script>
-  <script src="ui.js"></script>
+  <script src="app.js?v=2026-11-21"></script>
+  <script src="import-excel.js?v=2026-11-21"></script>
+  <script src="percorso.js?v=2026-11-21"></script>
+  <script src="tratte.js?v=2026-11-21"></script>
+  <script src="foto.js?v=2026-11-21"></script>
+  <script src="allegati.js?v=2026-11-21"></script>
+  <script src="viaggi.js?v=2026-11-21"></script>
+  <script src="carte.js?v=2026-11-21"></script>
+  <script src="modulistica.js?v=2026-11-21"></script>
+  <script src="contatti.js?v=2026-11-21"></script>
+  <script src="ui.js?v=2026-11-21"></script>
 
   <!-- Database: la libreria ufficiale di Supabase, poi il nostro collegamento (per ultimo: usa tutto il resto) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="cloud.js"></script>
+  <script src="cloud.js?v=2026-11-21"></script>
 </body>
 </html>
