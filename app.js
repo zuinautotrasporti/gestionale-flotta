@@ -105,6 +105,7 @@ function normalizzaDati(grezzi) {
     contatti: grezzi.contatti || {},       // i dati del biglietto da visita (vedi contatti.js)
     carte: grezzi.carte || [],             // le carte carburante (vedi carte.js)
     allegati: grezzi.allegati || [],       // la descrizione dei file caricati (vedi allegati.js)
+    viaggi: grezzi.viaggi || [],           // i viaggi con bolla e peso (vedi viaggi.js)
   };
 }
 
@@ -391,6 +392,7 @@ function aggiornaTutto() {
   if (typeof disegnaTratte === 'function') disegnaTratte();
   if (typeof disegnaCarte === 'function') disegnaCarte();
   if (typeof disegnaModulistica === 'function') disegnaModulistica();
+  if (typeof disegnaViaggi === 'function') disegnaViaggi();
   // Lo stesso per ui.js: panoramica, etichette per il telefono, ordinamento e ricerca nelle tabelle
   if (typeof dopoDisegno === 'function') dopoDisegno();
 }

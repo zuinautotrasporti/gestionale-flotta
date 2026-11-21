@@ -9,13 +9,14 @@
   Le due parti sono collegate dallo stesso id.
 
   "proprietario" dice a chi appartiene il file: { tipo: 'mezzo', id: '...' }, { tipo: 'autista', id: '...' }
-  oppure { tipo: 'modulistica' } per i documenti di uso quotidiano.
+  oppure { tipo: 'modulistica' } per i documenti di uso quotidiano, { tipo: 'viaggio', id } per bolle e ticket pesa.
 */
 
 const CATEGORIE_ALLEGATI = {
   mezzo: ['Libretto di circolazione', 'Polizza assicurativa', 'Altro'],
   autista: ['Patente', 'Carta tachigrafica', "Carta d'identità", 'CQC', 'Altro'],
   modulistica: ['Certificato di lavaggio', 'Buono di carico', 'Documento di trasporto', 'Altro'],
+  viaggio: ['Bolla (DDT)', 'Ticket pesa', 'Altro'],
 };
 
 const DIMENSIONE_MASSIMA_MB = 20;
