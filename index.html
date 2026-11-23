@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <!-- "?v=data" dopo i nostri file: quando cambi l'app, cambia questa data in TUTTI i file qui sotto.
        Così il browser scarica per forza i file nuovi, invece di mischiare file nuovi e vecchi presi dalla cache. -->
-  <link rel="stylesheet" href="style.css?v=2026-11-21">
+  <link rel="stylesheet" href="style.css?v=2026-11-23">
 </head>
 <body>
 
@@ -991,9 +991,10 @@
         <legend>Bolla e documenti</legend>
         <label class="bottone foto-bolla">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-          Fotografa la bolla
-          <input type="file" accept="image/*" capture="environment" hidden id="input-foto-bolla">
+          Foto della bolla
+          <input type="file" accept="image/*" hidden id="input-foto-bolla">
         </label>
+        <p id="stato-lettura" class="stato-lettura" hidden aria-live="polite"></p>
         <div id="allegati-viaggio"></div>
       </fieldset>
 
@@ -1011,20 +1012,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <!-- L'ordine conta: app.js definisce i dati, gli altri file li usano; ui.js per ultimo -->
-  <script src="app.js?v=2026-11-21"></script>
-  <script src="import-excel.js?v=2026-11-21"></script>
-  <script src="percorso.js?v=2026-11-21"></script>
-  <script src="tratte.js?v=2026-11-21"></script>
-  <script src="foto.js?v=2026-11-21"></script>
-  <script src="allegati.js?v=2026-11-21"></script>
-  <script src="viaggi.js?v=2026-11-21"></script>
-  <script src="carte.js?v=2026-11-21"></script>
-  <script src="modulistica.js?v=2026-11-21"></script>
-  <script src="contatti.js?v=2026-11-21"></script>
-  <script src="ui.js?v=2026-11-21"></script>
+  <script src="app.js?v=2026-11-23"></script>
+  <script src="import-excel.js?v=2026-11-23"></script>
+  <script src="percorso.js?v=2026-11-23"></script>
+  <script src="tratte.js?v=2026-11-23"></script>
+  <script src="foto.js?v=2026-11-23"></script>
+  <script src="allegati.js?v=2026-11-23"></script>
+  <script src="lettura-bolla.js?v=2026-11-23"></script>
+  <script src="viaggi.js?v=2026-11-23"></script>
+  <script src="carte.js?v=2026-11-23"></script>
+  <script src="modulistica.js?v=2026-11-23"></script>
+  <script src="contatti.js?v=2026-11-23"></script>
+  <script src="ui.js?v=2026-11-23"></script>
 
   <!-- Database: la libreria ufficiale di Supabase, poi il nostro collegamento (per ultimo: usa tutto il resto) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="cloud.js?v=2026-11-21"></script>
+  <script src="cloud.js?v=2026-11-23"></script>
 </body>
 </html>
