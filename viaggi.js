@@ -192,6 +192,9 @@ function apriModuloViaggio(viaggio) {
   document.getElementById('elenco-clienti-viaggi').innerHTML =
     [...clienti].sort().map(c => `<option value="${esc(c)}">`).join('');
 
+  // Ogni volta che apri la finestra: niente gialli e niente "toccato" rimasti dal viaggio di prima
+  [...formViaggio.elements].forEach(campo => { campo.classList.remove('da-controllare'); delete campo.dataset.toccato; });
+  statoLettura('');
   mostraImporto();
   sezioneAllegati(document.getElementById('allegati-viaggio'), 'viaggio', v.id);
   dialogViaggio.showModal();
@@ -293,21 +296,89 @@ document.getElementById('btn-elimina-viaggio').addEventListener('click', () => {
   aggiornaTutto();
 });
 
-// "Fotografa la bolla": sul telefono apre direttamente la fotocamera posteriore
+// "Foto della bolla": sul telefono puoi scattarla o sceglierla dalla galleria.
+// La salviamo come documento del viaggio e intanto proviamo a LEGGERLA (lettura-bolla.js).
 document.getElementById('input-foto-bolla').addEventListener('change', async evento => {
   const file = evento.target.files[0];
   evento.target.value = '';             // così la stessa foto si può ricaricare
   if (!file) return;
   const riquadro = document.getElementById('allegati-viaggio');
+  const idViaggio = viaggioInModifica.id;
   riquadro.classList.add('in-caricamento');
   try {
-    await aggiungiAllegato({ tipo: 'viaggio', id: viaggioInModifica.id }, 'Bolla (DDT)', file);
+    await aggiungiAllegato({ tipo: 'viaggio', id: idViaggio }, 'Bolla (DDT)', file);
   } catch (errore) {
     alert(errore.message);
   }
   riquadro.classList.remove('in-caricamento');
   document.dispatchEvent(new CustomEvent('allegati-cambiati'));
+  await compilaDallaFoto(file, idViaggio);
 });
+
+// Le scritte sotto il pulsante della foto: "Leggo la bolla…", "Ho letto: …"
+function statoLettura(testo, tipo = '') {
+  const riga = document.getElementById('stato-lettura');
+  riga.textContent = testo;
+  riga.className = 'stato-lettura ' + tipo;
+  riga.hidden = !testo;
+}
+
+// I campi che hai già scritto a mano non vengono toccati dalla lettura
+formViaggio.addEventListener('input', evento => {
+  if (!evento.isTrusted) return;
+  evento.target.dataset.toccato = '1';
+  evento.target.classList.remove('da-controllare');
+});
+formViaggio.addEventListener('change', evento => evento.target.classList.remove('da-controllare'));
+
+async function compilaDallaFoto(file, idViaggio) {
+  if (typeof leggiBolla !== 'function') return;
+  const contesto = {
+    targhe: dati.mezzi.filter(m => m.tipo === 'trattore' || m.tipo === 'rimorchio').map(m => ({ targa: m.targa, tipo: m.tipo })),
+    clienti: [...new Set([...dati.viaggi, ...dati.tratte].map(x => x.cliente).filter(Boolean))],
+  };
+  let letti;
+  try {
+    ({ dati: letti } = await leggiBolla(file, contesto, testo => statoLettura(testo, 'in-corso')));
+  } catch (errore) {
+    statoLettura('Non sono riuscito a leggere la bolla: ' + errore.message, 'errore');
+    return;
+  }
+  // Se nel frattempo hai chiuso la finestra o aperto un altro viaggio, non tocchiamo niente
+  if (!dialogViaggio.open || viaggioInModifica.id !== idViaggio) return;
+
+  const campi = formViaggio.elements;
+  const compilati = [];
+  const metti = (nome, valore, etichetta) => {
+    const campo = campi[nome];
+    if (valore == null || valore === '' || campo.dataset.toccato) return;
+    // La data c'è sempre (oggi): la sostituiamo con quella della bolla. Gli altri campi solo se vuoti.
+    if (nome !== 'data' && campo.value !== '') return;
+    if (campo.tagName === 'SELECT') {
+      const elenco = [...campo.options].map(o => o.value).filter(Boolean);
+      opzioni(campo, elenco, valore);
+    } else {
+      campo.value = valore;
+    }
+    campo.classList.add('da-controllare');
+    compilati.push(etichetta);
+  };
+  metti('ddt', letti.ddt, 'N° DDT');
+  metti('data', letti.data, 'data');
+  metti('cliente', letti.cliente, 'cliente');
+  metti('partenza', letti.partenza, 'partenza');
+  metti('destinazione', letti.destinazione, 'destinazione');
+  metti('trattore', letti.trattore, 'trattore');
+  metti('rimorchio', letti.rimorchio, 'semirimorchio');
+  metti('peso', letti.peso, 'peso');
+  completaAutista();
+  mostraImporto();
+
+  statoLettura(compilati.length
+    ? `Ho letto: ${compilati.join(', ')}. Controlla i campi in giallo prima di salvare.`
+    : 'Non ho trovato dati da riempire. Prova una foto più dritta e con più luce, oppure scrivili a mano.',
+    compilati.length ? 'ok' : 'errore');
+}
 
 document.getElementById('btn-nuovo-viaggio').addEventListener('click', () => apriModuloViaggio(null));
 

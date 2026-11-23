@@ -19,6 +19,7 @@ documenti caricati, calcolo dei percorsi per camion (con pedaggi), tratte e marg
 | `foto.js` | foto dei mezzi |
 | `allegati.js` | documenti caricati (PDF e immagini) |
 | `viaggi.js` | viaggi: bolla (DDT) fotografata, peso, importo, da fatturare |
+| `lettura-bolla.js` | legge la foto della bolla (OCR gratuito nel telefono) e riempie i campi del viaggio |
 | `carte.js` | carte carburante |
 | `modulistica.js` | documenti di uso quotidiano |
 | `contatti.js` | biglietto da visita |
